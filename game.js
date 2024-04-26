@@ -18,7 +18,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let startLevel = 131;
+let startLevel = 1;
 let endLevel = 256;
 const spacing = -45; // Defina o valor adequado para o espaçamento entre as flags
 const flagX = 900; // Defina o valor adequado para a posição horizontal das flags
@@ -68,7 +68,6 @@ function arabicToRoman(num) {
     }
     return result;
 }
-
 
 function getFlagImages(romanNumeral) {
     const flagImages = [];
@@ -160,7 +159,7 @@ function create() {
 
         flagImage.setOrigin(0.5);
         flagImage.setDepth(5); 
-        flagImage.setScale(2.5);
+        flagImage.setScale(2.2);
         flagImage.visible = true;
     }
 
@@ -185,6 +184,17 @@ function create() {
         repeat: -1, // Repetir infinitamente
         yoyo: true  // Inverter a animação
     });
+
+    // Inicializar o score
+    this.score = 0;
+
+    // Criar o texto do score com a cor amarela
+    this.scoreText = this.add.text(512, 747, `Score: ${this.score}`, {
+        fontSize: '32px',
+        fill: '#ffff00', // Cor amarela
+        fontFamily: 'Arial'
+    });
+    this.scoreText.setOrigin(0.5);
 
 }
 
