@@ -6,7 +6,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: false
+            debug: true
         }
     },
     scene: {
@@ -18,8 +18,17 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let startLevel = 1;
+let startLevel = 256;
 let endLevel = 255;
+
+const flagMap = {
+    'I': 'flagLevelMultiple1',
+    'V': 'flagLevelMultiple5',
+    'X': 'flagLevelMultiple10',
+    'XX': 'flagLevelMultiple20',
+    'L': 'flagLevelMultiple50',
+    'C': 'flagLevelMultiple100'
+};
 
 function preload() {
     // Carregar imagens, sons, etc.
@@ -30,12 +39,14 @@ function preload() {
     this.load.image('flagLevelMultiple1', 'assets/images/flagLevelMultiple1.png');
     this.load.image('flagLevelMultiple5', 'assets/images/flagLevelMultiple5.png');
     this.load.image('flagLevelMultiple10', 'assets/images/flagLevelMultiple10.png');
-    this.load.image('flagLevelMultiple25', 'assets/images/flagLevelMultiple25.png');
+    this.load.image('flagLevelMultiple20', 'assets/images/flagLevelMultiple25.png');
     this.load.image('flagLevelMultiple50', 'assets/images/flagLevelMultiple50.png');
     this.load.image('flagLevelMultiple100', 'assets/images/flagLevelMultiple100.png');
 }
 
 function create() {
+    this.physics.world.setBoundsCollision(true, true, true, true);
+    
     // Criar a nave do jogador
     this.player = this.physics.add.sprite(512, 700, 'nave');
     this.player.setOrigin(0.5, 0.5);
@@ -47,7 +58,7 @@ function create() {
 
     // Criar sprites para as vidas
     for (let i = 0; i < this.player.vidas; i++) {
-        const vida = this.physics.add.sprite(25 + (i * 45), 745, 'nave');
+        const vida = this.physics.add.sprite(25 + (i * 45), 747, 'nave');
         vida.setScale(2.2);
         vida.setCollideWorldBounds(true);
         vida.body.allowGravity = false;
@@ -77,17 +88,19 @@ function create() {
     }
 
     // Exibir texto do nível
-    this.levelText = this.add.text(512, 384, `Nível ${startLevel}`, { 
+    // Converter nível para romano e exibir
+    const levelRoman = arabicToRoman(startLevel);
+    this.levelText = this.add.text(512, 384, `Nível ${levelRoman}`, {
         fontSize: '32px', 
         fill: '#fff',
         fontFamily: 'Arial'
     });
-    this.levelText.setOrigin(0.5); // Centralizar o texto
+    this.levelText.setOrigin(0.5);
 
-    // Adicionar imagem da flag de nível
-    this.levelFlag = this.add.image(512, 745, 'flagLevelMultiple1'); // Imagem inicial
-    this.levelFlag.setOrigin(0.5); // Centralizar a imagem
-    this.levelFlag.setScale(0.5); // Ajustar a escala (opcional)
+    // Selecionar a imagem da flag com base no nível romano
+    this.levelFlag = this.add.image(512, 300, flagMap[levelRoman]); // Ajustar a posição
+    this.levelFlag.setOrigin(0.5);
+    this.levelFlag.setScale(0.5);
 
     // Controle da nave com teclado
     this.player.cursors = this.input.keyboard.createCursorKeys();
@@ -95,6 +108,11 @@ function create() {
 
     // Flag para controlar o disparo
     this.player.podeAtirar = true;
+
+    // Adicionar listener para o evento 'worldbounds'
+    this.player.tiros.on('worldbounds', function(tiro) {
+        tiro.destroy();
+    });
 
     // Iniciar o efeito de piscar
     this.tweens.add({
@@ -117,6 +135,19 @@ function atirar(player) {
         playerTiro.setVelocityY(-500);
         playerTiro.body.allowGravity = false;
     }
+}
+
+function arabicToRoman(num) {
+    const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+    const numerals = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
+    let result = '';
+    for (let i = 0; i < values.length; i++) {
+        while (num >= values[i]) {
+            num -= values[i];
+            result += numerals[i];
+        }
+    }
+    return result;
 }
 
 function update() {
