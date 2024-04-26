@@ -212,6 +212,28 @@ function atirar(player) {
     }
 }
 
+function verificarBonusVida(cena) {
+    if (cena.score >= 30000 && cena.player.vidas < 4) {
+        cena.player.vidas++;
+
+        // Adicionar lógica para criar um novo sprite de vida
+        // Criar um novo sprite de vida
+        const vida = cena.physics.add.sprite(25 + (cena.player.vidas - 1) * 45, 747, 'nave');
+        vida.setScale(2.2);
+        vida.setCollideWorldBounds(true);
+        vida.body.allowGravity = false;
+        
+        // Exibir uma mensagem ou efeito visual para indicar o bônus
+        cena.score -= 30000; // Ajustar o score para evitar múltiplos bônus
+    } else if (cena.score >= 70000 && cena.player.vidas < 5) {
+        cena.player.vidas++;
+        // Adicionar lógica para criar um novo sprite de vida
+        // Exibir uma mensagem ou efeito visual para indicar o bônus
+        cena.score -= 70000; // Ajustar o score para evitar múltiplos bônus
+    } 
+    // ... (Repetir para outros limites de pontuação)
+}
+
 function update() {
     if (this.player.cursors.left.isDown) {
         this.player.setVelocityX(-250);
@@ -262,4 +284,7 @@ function update() {
         this.tweens.killTweensOf(this.levelText);
         this.levelText.destroy();
     }    
+
+    // Verificar bônus de vida após atualizar o score
+    verificarBonusVida(this); // Passar o contexto da cena (this) como argumento
 }
