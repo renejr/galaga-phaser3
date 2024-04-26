@@ -6,7 +6,7 @@ const config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: false
+            debug: true
         }
     },
     scene: {
@@ -18,16 +18,84 @@ const config = {
 
 const game = new Phaser.Game(config);
 
+let startLevel = 131;
+let endLevel = 256;
+const spacing = -45; // Defina o valor adequado para o espaçamento entre as flags
+const flagX = 900; // Defina o valor adequado para a posição horizontal das flags
+const flagY = 745; // Defina o valor adequado para a posição vertical das flags
+
+
+const flagMap = {
+    'I': 'flagLevelMultiple1',
+    'V': 'flagLevelMultiple5',
+    'X': 'flagLevelMultiple10',
+    'XX': 'flagLevelMultiple20',
+    'L': 'flagLevelMultiple50',
+    'C': 'flagLevelMultiple100',
+    // Adicionar novas entradas para D, M, etc.
+    'D': 'flagLevelMultiple500', // Exemplo
+    'M': 'flagLevelMultiple1000' // Exemplo
+};
+
 function preload() {
     // Carregar imagens, sons, etc.
     this.load.image('nave', 'assets/images/nave.png');
     this.load.image('playerShot', 'assets/images/playerShot.png');
+
+    //Level Flags
+    this.load.image('flagLevelMultiple1', 'assets/images/flagLevelMultiple1.png');
+    this.load.image('flagLevelMultiple5', 'assets/images/flagLevelMultiple5.png');
+    this.load.image('flagLevelMultiple10', 'assets/images/flagLevelMultiple10.png');
+    this.load.image('flagLevelMultiple20', 'assets/images/flagLevelMultiple25.png');
+    this.load.image('flagLevelMultiple50', 'assets/images/flagLevelMultiple50.png');
+    this.load.image('flagLevelMultiple100', 'assets/images/flagLevelMultiple100.png');
+
+    // Carregar o som do tiro
+    this.load.audio('somTiro', 'assets/sounds/SOUND07.wav');
+}
+
+function arabicToRoman(num) {
+    console.log("num : " + num );
+
+    const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+    const numerals = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
+    let result = '';
+    for (let i = 0; i < values.length; i++) {
+        while (num >= values[i]) {
+            num -= values[i];
+            result += numerals[i];
+        }
+    }
+    return result;
+}
+
+
+function getFlagImages(romanNumeral) {
+    const flagImages = [];
+    let i = 0;
+    while (i < romanNumeral.length) {
+        // Verificar se há combinações de dois caracteres
+        const twoChars = romanNumeral.substring(i, i + 2);
+        if (flagMap[twoChars]) {
+            flagImages.push(flagMap[twoChars]);
+            i += 2;
+        } else {
+            // Buscar o caractere individual
+            const oneChar = romanNumeral.charAt(i);
+            flagImages.push(flagMap[oneChar]);
+            i++;
+        }
+    }
+    return flagImages;
 }
 
 function create() {
+    this.physics.world.setBoundsCollision(true, true, true, true);
+    
     // Criar a nave do jogador
     this.player = this.physics.add.sprite(512, 700, 'nave');
     this.player.setOrigin(0.5, 0.5);
+    this.player.setDepth(5); // Ou um valor maior
     this.player.setScale(2.8);
     this.player.setCollideWorldBounds(true);
     this.player.body.velocity.y = 0;
@@ -36,7 +104,7 @@ function create() {
 
     // Criar sprites para as vidas
     for (let i = 0; i < this.player.vidas; i++) {
-        const vida = this.physics.add.sprite(25 + (i * 45), 745, 'nave');
+        const vida = this.physics.add.sprite(25 + (i * 45), 747, 'nave');
         vida.setScale(2.2);
         vida.setCollideWorldBounds(true);
         vida.body.allowGravity = false;
@@ -46,6 +114,11 @@ function create() {
     this.player.tiros = this.physics.add.group({
         defaultKey: 'playerShot'
     });
+
+    // Criar o objeto de som do tiro
+    this.somTiro = this.sound.add('somTiro');
+
+    const self = this; // Armazenar o contexto atual
 
     // Criar grupo de estrelas
     this.estrelas = this.add.group();
@@ -65,12 +138,54 @@ function create() {
         estrela.visible = Math.random() < 0.5;
     }
 
+    // Exibir texto do nível
+    // Converter nível para romano e exibir
+    const levelRoman = arabicToRoman(startLevel);
+    this.levelText = this.add.text(512, 384, `Nível ${levelRoman}`, {
+        fontSize: '32px', 
+        fill: '#fff',
+        fontFamily: 'Arial'
+    });
+    this.levelText.setOrigin(0.5);
+
+    // Obter as imagens de flags para o número romano
+    const flagImageNames = getFlagImages(levelRoman);
+
+    // Calcular o deslocamento para centralizar as flags
+    const totalFlagWidth = flagImageNames.length * spacing;
+    const startX = flagX - (totalFlagWidth / 2) + (spacing / 2);
+
+    for (let i = 0; i < flagImageNames.length; i++) {
+        const flagImage = this.add.image(startX + (i * spacing), flagY, flagImageNames[i]);
+
+        flagImage.setOrigin(0.5);
+        flagImage.setDepth(5); 
+        flagImage.setScale(2.5);
+        flagImage.visible = true;
+    }
+
     // Controle da nave com teclado
     this.player.cursors = this.input.keyboard.createCursorKeys();
     this.player.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     // Flag para controlar o disparo
     this.player.podeAtirar = true;
+
+    // Adicionar listener para o evento 'worldbounds'
+    this.player.tiros.on('worldbounds', function(tiro) {
+        tiro.destroy();
+    });
+
+    // Iniciar o efeito de piscar
+    this.tweens.add({
+        targets: this.levelText,
+        alpha: { from: 0, to: 1 },
+        duration: 500,
+        ease: 'Linear',
+        repeat: -1, // Repetir infinitamente
+        yoyo: true  // Inverter a animação
+    });
+
 }
 
 function atirar(player) {
@@ -81,6 +196,9 @@ function atirar(player) {
         playerTiro.setScale(2.8);
         playerTiro.setVelocityY(-500);
         playerTiro.body.allowGravity = false;
+
+        // Reproduzir o som do tiro usando o contexto da cena
+        self.somTiro.play(); 
     }
 }
 
@@ -91,6 +209,23 @@ function update() {
         this.player.setVelocityX(250);
     } else {
         this.player.setVelocityX(0);
+    }
+
+    // Armazenar o contexto atual
+    const self = this;
+
+    function atirar(player) {
+        if (player.podeAtirar) {
+            player.podeAtirar = false;
+
+            const playerTiro = player.tiros.create(player.x, player.y - (32 * 1) + 4, 'playerShot');
+            playerTiro.setScale(2.8);
+            playerTiro.setVelocityY(-500);
+            playerTiro.body.allowGravity = false;
+
+            // Reproduzir o som do tiro usando o contexto da cena
+            self.somTiro.play(); 
+        }
     }
 
     if (this.player.spacebar.isDown && this.player.podeAtirar) {
@@ -110,4 +245,11 @@ function update() {
         estrela.visible = !estrela.visible;
         }
     });
+
+    // Verificar se o jogador se moveu ou atirou
+    if (this.player.body.velocity.x !== 0 || !this.player.podeAtirar) {
+        // Parar o efeito de piscar e destruir o texto
+        this.tweens.killTweensOf(this.levelText);
+        this.levelText.destroy();
+    }    
 }
