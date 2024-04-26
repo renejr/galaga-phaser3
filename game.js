@@ -18,10 +18,21 @@ const config = {
 
 const game = new Phaser.Game(config);
 
+let startLevel = 1;
+let endLevel = 255;
+
 function preload() {
     // Carregar imagens, sons, etc.
     this.load.image('nave', 'assets/images/nave.png');
     this.load.image('playerShot', 'assets/images/playerShot.png');
+
+    //Level Flags
+    this.load.image('flagLevelMultiple1', 'assets/images/flagLevelMultiple1.png');
+    this.load.image('flagLevelMultiple5', 'assets/images/flagLevelMultiple5.png');
+    this.load.image('flagLevelMultiple10', 'assets/images/flagLevelMultiple10.png');
+    this.load.image('flagLevelMultiple25', 'assets/images/flagLevelMultiple25.png');
+    this.load.image('flagLevelMultiple50', 'assets/images/flagLevelMultiple50.png');
+    this.load.image('flagLevelMultiple100', 'assets/images/flagLevelMultiple100.png');
 }
 
 function create() {
@@ -65,12 +76,36 @@ function create() {
         estrela.visible = Math.random() < 0.5;
     }
 
+    // Exibir texto do nível
+    this.levelText = this.add.text(512, 384, `Nível ${startLevel}`, { 
+        fontSize: '32px', 
+        fill: '#fff',
+        fontFamily: 'Arial'
+    });
+    this.levelText.setOrigin(0.5); // Centralizar o texto
+
+    // Adicionar imagem da flag de nível
+    this.levelFlag = this.add.image(512, 745, 'flagLevelMultiple1'); // Imagem inicial
+    this.levelFlag.setOrigin(0.5); // Centralizar a imagem
+    this.levelFlag.setScale(0.5); // Ajustar a escala (opcional)
+
     // Controle da nave com teclado
     this.player.cursors = this.input.keyboard.createCursorKeys();
     this.player.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
     // Flag para controlar o disparo
     this.player.podeAtirar = true;
+
+    // Iniciar o efeito de piscar
+    this.tweens.add({
+        targets: this.levelText,
+        alpha: { from: 0, to: 1 },
+        duration: 500,
+        ease: 'Linear',
+        repeat: -1, // Repetir infinitamente
+        yoyo: true  // Inverter a animação
+    });
+
 }
 
 function atirar(player) {
@@ -110,4 +145,11 @@ function update() {
         estrela.visible = !estrela.visible;
         }
     });
+
+    // Verificar se o jogador se moveu ou atirou
+    if (this.player.body.velocity.x !== 0 || !this.player.podeAtirar) {
+        // Parar o efeito de piscar e destruir o texto
+        this.tweens.killTweensOf(this.levelText);
+        this.levelText.destroy();
+    }    
 }
