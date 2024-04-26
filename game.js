@@ -18,7 +18,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let startLevel = 131;
+let startLevel = 1;
 let endLevel = 256;
 const spacing = -45; // Defina o valor adequado para o espaçamento entre as flags
 const flagX = 900; // Defina o valor adequado para a posição horizontal das flags
@@ -68,7 +68,6 @@ function arabicToRoman(num) {
     }
     return result;
 }
-
 
 function getFlagImages(romanNumeral) {
     const flagImages = [];
@@ -160,13 +159,17 @@ function create() {
 
         flagImage.setOrigin(0.5);
         flagImage.setDepth(5); 
-        flagImage.setScale(2.5);
+        flagImage.setScale(2.2);
         flagImage.visible = true;
     }
 
     // Controle da nave com teclado
     this.player.cursors = this.input.keyboard.createCursorKeys();
     this.player.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+    // hack para add pontos
+    // Adicionar tecla P para o hack de pontuação
+    this.keyP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
 
     // Flag para controlar o disparo
     this.player.podeAtirar = true;
@@ -186,6 +189,17 @@ function create() {
         yoyo: true  // Inverter a animação
     });
 
+    // Inicializar o score
+    this.score = 0;
+
+    // Criar o texto do score com a cor amarela
+    this.scoreText = this.add.text(512, 747, `Score: ${this.score}`, {
+        fontSize: '32px',
+        fill: '#ffff00', // Cor amarela
+        fontFamily: 'Arial'
+    });
+    this.scoreText.setOrigin(0.5);
+
 }
 
 function atirar(player) {
@@ -199,6 +213,28 @@ function atirar(player) {
 
         // Reproduzir o som do tiro usando o contexto da cena
         self.somTiro.play(); 
+    }
+}
+
+function verificarBonusVida(cena) {
+    const bonusInterval = 70000; // Intervalo de pontuação para bônus de vida
+    const maxVidas = 10; // Número máximo de vidas
+
+    // Calcular quantos bônus de vida o jogador deve receber
+    const bonusVidas = Math.floor(cena.score / bonusInterval);
+
+    // Garantir que o número de vidas não exceda o máximo
+    const vidasAdicionar = Math.min(bonusVidas - (cena.player.vidas - 3), maxVidas - cena.player.vidas);
+
+    // Adicionar as vidas extras
+    for (let i = 0; i < vidasAdicionar; i++) {
+        cena.player.vidas++;
+
+        // Criar um novo sprite de vida
+        const vida = cena.physics.add.sprite(25 + (cena.player.vidas - 1) * 45, 747, 'nave');
+        vida.setScale(2.2);
+        vida.setCollideWorldBounds(true);
+        vida.body.allowGravity = false;
     }
 }
 
@@ -252,4 +288,16 @@ function update() {
         this.tweens.killTweensOf(this.levelText);
         this.levelText.destroy();
     }    
+
+        // hacks
+    // Verificar se a tecla P foi pressionada
+    if (this.keyP.isDown) {
+        this.score += 1000;
+        this.scoreText.setText(`Score: ${this.score}`); // Atualizar a exibição do score
+    }
+
+    // Verificar bônus de vida após atualizar o score
+    verificarBonusVida(this); // Passar o contexto da cena (this) como argumento
+
+
 }
