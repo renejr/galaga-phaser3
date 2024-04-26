@@ -18,8 +18,8 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let startLevel = 256;
-let endLevel = 255;
+let startLevel = 13;
+let endLevel = 256;
 
 const flagMap = {
     'I': 'flagLevelMultiple1',
@@ -27,7 +27,10 @@ const flagMap = {
     'X': 'flagLevelMultiple10',
     'XX': 'flagLevelMultiple20',
     'L': 'flagLevelMultiple50',
-    'C': 'flagLevelMultiple100'
+    'C': 'flagLevelMultiple100',
+    // Adicionar novas entradas para D, M, etc.
+    'D': 'flagLevelMultiple500', // Exemplo
+    'M': 'flagLevelMultiple1000' // Exemplo
 };
 
 function preload() {
@@ -50,6 +53,7 @@ function create() {
     // Criar a nave do jogador
     this.player = this.physics.add.sprite(512, 700, 'nave');
     this.player.setOrigin(0.5, 0.5);
+    this.player.setDepth(5); // Ou um valor maior
     this.player.setScale(2.8);
     this.player.setCollideWorldBounds(true);
     this.player.body.velocity.y = 0;
@@ -97,10 +101,23 @@ function create() {
     });
     this.levelText.setOrigin(0.5);
 
-    // Selecionar a imagem da flag com base no nível romano
-    this.levelFlag = this.add.image(512, 300, flagMap[levelRoman]); // Ajustar a posição
-    this.levelFlag.setOrigin(0.5);
-    this.levelFlag.setScale(0.5);
+    // Obter as imagens de flags para o número romano
+    const flagImageNames = getFlagImages(levelRoman);
+
+    console.log("flagImageNames: " + flagImageNames);
+
+    // Criar as imagens de flags (ajuste as posições conforme necessário)
+    const flagX = 512; // Posição horizontal central
+    const flagY = 747; // Posição vertical (ajuste conforme necessário)
+    const spacing = 50; // Espaço entre as flags
+
+    for (let i = 0; i < flagImageNames.length; i++) {
+        const flagImage = this.add.image(flagX + (i * spacing), flagY, flagImageNames[i]);
+        flagImage.setOrigin(0.5);
+        flagImage.setDepth(5); 
+        flagImage.setScale(2.1);
+        flagImage.visible = true;
+    }
 
     // Controle da nave com teclado
     this.player.cursors = this.input.keyboard.createCursorKeys();
@@ -138,6 +155,8 @@ function atirar(player) {
 }
 
 function arabicToRoman(num) {
+    console.log("num : " + num );
+
     const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
     const numerals = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
     let result = '';
