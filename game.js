@@ -167,6 +167,10 @@ function create() {
     this.player.cursors = this.input.keyboard.createCursorKeys();
     this.player.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
+    // hack para add pontos
+    // Adicionar tecla P para o hack de pontuação
+    this.keyP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+
     // Flag para controlar o disparo
     this.player.podeAtirar = true;
 
@@ -213,25 +217,25 @@ function atirar(player) {
 }
 
 function verificarBonusVida(cena) {
-    if (cena.score >= 30000 && cena.player.vidas < 4) {
+    const bonusInterval = 70000; // Intervalo de pontuação para bônus de vida
+    const maxVidas = 10; // Número máximo de vidas
+
+    // Calcular quantos bônus de vida o jogador deve receber
+    const bonusVidas = Math.floor(cena.score / bonusInterval);
+
+    // Garantir que o número de vidas não exceda o máximo
+    const vidasAdicionar = Math.min(bonusVidas - (cena.player.vidas - 3), maxVidas - cena.player.vidas);
+
+    // Adicionar as vidas extras
+    for (let i = 0; i < vidasAdicionar; i++) {
         cena.player.vidas++;
 
-        // Adicionar lógica para criar um novo sprite de vida
         // Criar um novo sprite de vida
         const vida = cena.physics.add.sprite(25 + (cena.player.vidas - 1) * 45, 747, 'nave');
         vida.setScale(2.2);
         vida.setCollideWorldBounds(true);
         vida.body.allowGravity = false;
-        
-        // Exibir uma mensagem ou efeito visual para indicar o bônus
-        cena.score -= 30000; // Ajustar o score para evitar múltiplos bônus
-    } else if (cena.score >= 70000 && cena.player.vidas < 5) {
-        cena.player.vidas++;
-        // Adicionar lógica para criar um novo sprite de vida
-        // Exibir uma mensagem ou efeito visual para indicar o bônus
-        cena.score -= 70000; // Ajustar o score para evitar múltiplos bônus
-    } 
-    // ... (Repetir para outros limites de pontuação)
+    }
 }
 
 function update() {
@@ -285,6 +289,15 @@ function update() {
         this.levelText.destroy();
     }    
 
+        // hacks
+    // Verificar se a tecla P foi pressionada
+    if (this.keyP.isDown) {
+        this.score += 1000;
+        this.scoreText.setText(`Score: ${this.score}`); // Atualizar a exibição do score
+    }
+
     // Verificar bônus de vida após atualizar o score
     verificarBonusVida(this); // Passar o contexto da cena (this) como argumento
+
+
 }
