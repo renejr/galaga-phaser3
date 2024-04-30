@@ -131,22 +131,25 @@ function create() {
 
     const self = this; // Armazenar o contexto atual
 
-    // Criar grupo de estrelas
-    this.estrelas = this.add.group();
+    // Criar grupo de estrelas com propriedades para animação
+    this.estrelas = this.add.group({
+        classType: Phaser.GameObjects.Graphics, // Definir tipo de objeto
+        maxSize: 100, // Definir tamanho máximo do grupo
+        runChildUpdate: true // Habilitar atualização individual de cada estrela
+    });
 
-    // Adicionar 100 estrelas
+    // Adicionar estrelas com timers e velocidades aleatórias
     for (let i = 0; i < 100; i++) {
-        // Criar objeto gráfico para a estrela
-        const estrela = this.add.graphics();
-        estrela.fillStyle(0xffff00, 1); // Cor amarela
-        estrela.fillCircle(0, 0, 1.5); // Desenhar círculo 
-        // Posicionar aleatoriamente
+        const estrela = this.estrelas.get();
+        estrela.fillStyle(0xffff00, 1);
+        estrela.fillCircle(0, 0, 1.5);
         estrela.x = Phaser.Math.Between(0, 1024);
         estrela.y = Phaser.Math.Between(0, 650);
-        // Adicionar ao grupo
-        this.estrelas.add(estrela);
-        // Definir visibilidade inicial (opcional)
-        estrela.visible = Math.random() < 0.5;
+
+        // Definir propriedades para animação
+        estrela.timer = Math.random() * 2; // Timer aleatório entre 0 e 2 segundos
+        estrela.velocidade = Math.random() < 0.5 ? 0.01 : -0.01; // Velocidade aleatória para frente ou para trás
+        estrela.alpha = 0; // Inicialmente invisível
     }
 
     // Exibir texto do nível
@@ -447,13 +450,10 @@ function update() {
         this.player.podeAtirar = true;
     }
 
-    // Animar estrelas
+    // Animar estrelas individualmente
     this.estrelas.children.iterate(function(estrela) {
-        // Timer aleatório para cada estrela
-        if (Math.random() < 0.02) {
-        // Alternar visibilidade
-        estrela.visible = !estrela.visible;
-        }
+        estrela.timer += estrela.velocidade * 5; 
+        estrela.alpha = Math.abs(Math.sin(estrela.timer)); // Alternar alpha com base no seno do timer
     });
 
     // Verificar se o jogador se moveu ou atirou
