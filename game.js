@@ -5,7 +5,7 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+            gravity: { y: 0 },
             debug: true
         }
     },
@@ -52,6 +52,23 @@ function preload() {
 
     // Carregar o som do tiro
     this.load.audio('somTiro', 'assets/sounds/SOUND07.wav');
+
+    this.load.image('galagaRegular01', 'assets/images/GalagaRegular01.png');
+    this.load.image('galagaRegular02', 'assets/images/GalagaRegular02.png');
+    this.load.image('galagaRegular03', 'assets/images/GalagaRegular03.png');
+    this.load.image('galagaRegular04', 'assets/images/GalagaRegular04.png');
+    this.load.image('galagaRegular05', 'assets/images/GalagaRegular05.png');
+    this.load.image('galagaRegular06', 'assets/images/GalagaRegular06.png');
+
+    this.load.image('galagaBoss01', 'assets/images/GalagaBoss01.png');
+    this.load.image('galagaBoss02', 'assets/images/GalagaBoss02.png');
+    this.load.image('galagaBoss03', 'assets/images/GalagaBoss03.png');
+
+    this.load.image('galagaFast01', 'assets/images/GalagaFast01.png');
+
+
+    //GalagaFast01
+
 }
 
 function arabicToRoman(num) {
@@ -200,6 +217,167 @@ function create() {
     });
     this.scoreText.setOrigin(0.5);
 
+    // Criar o grid
+    const cellSize = 64;
+    const numCols = Math.ceil(this.sys.game.config.width / cellSize);
+    const numRows = Math.ceil(this.sys.game.config.height / cellSize);
+    
+    // In the create function:
+    this.enemies = this.physics.add.group();
+
+    let cellNumber = 1;
+    for (let y = 0; y < numRows; y++) {
+        for (let x = 0; x < numCols; x++) {
+            let cellColor = 0x0000FF; // Default: Blue
+            if (cellNumber >= 17 && cellNumber <= 32) {
+                cellColor = 0xB00500; // Red for cells 17 to 32
+            }
+            
+            if (cellNumber >= 33 && cellNumber <= 64) {
+                cellColor = 0xFFA500; // Orange for cells 32 to 64
+            }
+            
+            if (cellNumber >= 65 && cellNumber <= 80) {
+                cellColor = 0x0CC500; // Green for cells 65 to 80
+            }
+
+            const cell = this.add.rectangle(x * cellSize, y * cellSize, cellSize, cellSize, cellColor, 0.2); 
+            cell.setOrigin(0, 0);
+            cell.setDepth(3);
+
+            // Adicionar número da célula (opcional)
+            const cellText = this.add.text(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, cellNumber, {
+                fontSize: '8px',
+                fill: '#ffffff'
+            });
+
+            cellText.setOrigin(0.5, 0.5);
+            cellText.setDepth(3);
+
+            // Criar inimigo galagaRegular01 nas células 34 a 39
+            if (cellNumber >= 34 && cellNumber <= 39) {
+                const inimigo = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular01');
+                inimigo.customKey = "inimigo" + cellNumber
+                inimigo.setScale(2.5);
+                inimigo.setDepth(4);
+                inimigo.body.allowGravity = false;
+                inimigo.hitValue = 1750;
+                
+                this.enemies.add(inimigo);
+            }
+
+            // Criar inimigo2 galagaRegular02 nas células 42 a 47
+            if (cellNumber >= 42 && cellNumber <= 47) {
+                const inimigo2 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular02');
+                inimigo2.customKey = "inimigo2" + cellNumber
+                inimigo2.setScale(2.5);
+                inimigo2.setDepth(4);
+                inimigo2.body.allowGravity = false;
+                inimigo2.hitValue = 1750;
+
+                this.enemies.add(inimigo2);
+            }
+
+            // Criar inimigo3 galagaRegular03 nas células 58 a 62
+            if (cellNumber >= 58 && cellNumber <= 62) {
+                const inimigo3 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular03');
+                inimigo3.customKey = "inimigo3" + cellNumber
+                inimigo3.setScale(2.5);
+                inimigo3.setDepth(4);
+                inimigo3.body.allowGravity = false;
+                inimigo3.hitValue = 550;
+                
+                this.enemies.add(inimigo3);
+            }
+
+            // Criar inimigo4 galagaRegular04 nas células 51 a 55
+            if (cellNumber >= 51 && cellNumber <= 55) {
+                const inimigo4 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular04');
+                inimigo4.customKey = "inimigo4" + cellNumber
+                inimigo4.setScale(2.5);
+                inimigo4.setDepth(4);
+                inimigo4.body.allowGravity = false;
+                inimigo4.hitValue = 550;
+                
+                this.enemies.add(inimigo4);
+            }
+
+            // Criar inimigo5 galagaRegular05 nas células 68 a 71
+            if (cellNumber >= 68 && cellNumber <= 71) {
+                const inimigo5 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular05');
+                inimigo5.customKey = "inimigo5" + cellNumber
+                inimigo5.setScale(2.5);
+                inimigo5.setDepth(4);
+                inimigo5.body.allowGravity = false;
+                inimigo5.hitValue = 250;
+                
+                this.enemies.add(inimigo5);
+            }
+
+            // Criar inimigo6 galagaRegular06 nas células 74 a 77
+            if (cellNumber >= 74 && cellNumber <= 77) {
+                const inimigo6 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular06');
+                inimigo6.customKey = "inimigo6" + cellNumber
+                inimigo6.setScale(2.5);
+                inimigo6.setDepth(4);
+                inimigo6.body.allowGravity = false;
+                inimigo6.hitValue = 250;
+                
+                this.enemies.add(inimigo6);
+            }
+
+            // Criar boss1  GalagaBoss01 nas células 17 a 23
+            if (cellNumber >= 17 && cellNumber <= 23) {
+                const boss1 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaBoss01');
+                boss1.customKey = "boss1" + cellNumber
+                boss1.setScale(2.5);
+                boss1.setDepth(4);
+                boss1.body.allowGravity = false;
+                boss1.hitValue = 2500;
+                
+                this.enemies.add(boss1);
+            }
+
+            // Criar boss2  GalagaBoss02 nas células 26 a 32
+            if (cellNumber >= 26 && cellNumber <= 32) {
+                const boss2 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaBoss02');
+                boss2.customKey = "boss2" + cellNumber
+                boss2.setScale(2.5);
+                boss2.setDepth(4);
+                boss2.body.allowGravity = false;
+                boss2.hitValue = 2500;
+                
+                this.enemies.add(boss2);
+            }
+
+            // Criar boss3  GalagaBoss03 nas células 24 e 56
+            if (cellNumber == 24 || cellNumber == 56 ) {
+                const boss3 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaBoss03');
+                boss3.customKey = "boss3" + cellNumber
+                boss3.setScale(2.5);
+                boss3.setDepth(4);
+                boss3.body.allowGravity = false;
+                boss3.hitValue = 1000;
+                
+                this.enemies.add(boss3);
+            }
+
+            // Criar fast1  GalagaFast01 nas células 41 a 73
+            if (cellNumber == 41 || cellNumber == 73 ) {
+                const fast1 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaFast01');
+                fast1.customKey = "fast1" + cellNumber
+                fast1.setScale(2.5);
+                fast1.setDepth(4);
+                fast1.body.allowGravity = false;
+                fast1.hitValue = 5000;
+                
+                this.enemies.add(fast1);
+            }
+
+            cellNumber++;
+        }
+    }
+
 }
 
 function atirar(player) {
@@ -208,6 +386,7 @@ function atirar(player) {
 
         const playerTiro = player.tiros.create(player.x, player.y - (32 * 1) + 4, 'playerShot');
         playerTiro.setScale(2.8);
+        fast1.setDepth(6);
         playerTiro.setVelocityY(-500);
         playerTiro.body.allowGravity = false;
 
@@ -217,8 +396,8 @@ function atirar(player) {
 }
 
 function verificarBonusVida(cena) {
-    const bonusInterval = 70000; // Intervalo de pontuação para bônus de vida
-    const maxVidas = 10; // Número máximo de vidas
+    const bonusInterval = 45000; // Intervalo de pontuação para bônus de vida
+    const maxVidas = 8; // Número máximo de vidas
 
     // Calcular quantos bônus de vida o jogador deve receber
     const bonusVidas = Math.floor(cena.score / bonusInterval);
@@ -294,10 +473,27 @@ function update() {
     if (this.keyP.isDown) {
         this.score += 1000;
         this.scoreText.setText(`Score: ${this.score}`); // Atualizar a exibição do score
+
+        // Verificar bônus de vida após atualizar o score
+        verificarBonusVida(this); // Passar o contexto da cena (this) como argumento
     }
 
-    // Verificar bônus de vida após atualizar o score
-    verificarBonusVida(this); // Passar o contexto da cena (this) como argumento
-
+    this.physics.add.overlap(this.player.tiros, this.enemies, (tiro, inimigo) => {
+        tiro.destroy(); // Destruir o tiro
+        
+        // Verificar se o inimigo possui a propriedade customKey e destruí-lo com base nessa referência
+        if (inimigo.customKey) {
+            // Destruir o inimigo
+            inimigo.destroy();
+    
+            // Atualizar a pontuação
+            this.score += inimigo.hitValue;
+            this.scoreText.setText(`Score: ${this.score}`);
+    
+            // Verificar bônus de vida após a atualização da pontuação
+            verificarBonusVida(this);
+        }
+    }, null, this);
+    
 
 }
