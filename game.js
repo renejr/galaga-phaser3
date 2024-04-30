@@ -52,6 +52,8 @@ function preload() {
     // Carregar o som do tiro
     this.load.audio('somTiro', 'assets/sounds/SOUND07.wav');
 
+    this.load.audio('somExplosaoInimigo', 'assets/sounds/SOUND08.wav');
+
     this.load.image('galagaRegular01', 'assets/images/GalagaRegular01.png');
     this.load.image('galagaRegular02', 'assets/images/GalagaRegular02.png');
     this.load.image('galagaRegular03', 'assets/images/GalagaRegular03.png');
@@ -136,6 +138,9 @@ function create() {
 
     // Criar o objeto de som do tiro
     this.somTiro = this.sound.add('somTiro');
+
+    // Criar o objeto de som da explosao do inimigo
+    this.somExplosaoInimigo = this.sound.add('somExplosaoInimigo');
 
     const self = this; // Armazenar o contexto atual
 
@@ -260,125 +265,130 @@ function create() {
             cellText.setOrigin(0.5, 0.5);
             cellText.setDepth(3);
 
-            // Criar inimigo galagaRegular01 nas células 34 a 39
-            if (cellNumber >= 34 && cellNumber <= 39) {
-                const inimigo = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular01');
-                inimigo.customKey = "inimigo" + cellNumber
-                inimigo.setScale(2.5);
-                inimigo.setDepth(4);
-                inimigo.body.allowGravity = false;
-                inimigo.hitValue = 1750;
-                
-                this.enemies.add(inimigo);
+
+
+            if (cellNumber >= 17 && cellNumber <= 80) {
+                            // Criar inimigo galagaRegular01 nas células 34 a 39
+                if (cellNumber >= 34 && cellNumber <= 39) {
+                    const inimigo = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular01');
+                    inimigo.customKey = "inimigo" + cellNumber
+                    inimigo.setScale(2.5);
+                    inimigo.setDepth(4);
+                    inimigo.body.allowGravity = false;
+                    inimigo.hitValue = 1750;
+                    
+                    this.enemies.add(inimigo);
+                }
+
+                // Criar inimigo2 galagaRegular02 nas células 42 a 47
+                if (cellNumber >= 42 && cellNumber <= 47) {
+                    const inimigo2 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular02');
+                    inimigo2.customKey = "inimigo2" + cellNumber
+                    inimigo2.setScale(2.5);
+                    inimigo2.setDepth(4);
+                    inimigo2.body.allowGravity = false;
+                    inimigo2.hitValue = 1750;
+
+                    this.enemies.add(inimigo2);
+                }
+
+                // Criar inimigo3 galagaRegular03 nas células 58 a 62
+                if (cellNumber >= 58 && cellNumber <= 62) {
+                    const inimigo3 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular03');
+                    inimigo3.customKey = "inimigo3" + cellNumber
+                    inimigo3.setScale(2.5);
+                    inimigo3.setDepth(4);
+                    inimigo3.body.allowGravity = false;
+                    inimigo3.hitValue = 550;
+                    
+                    this.enemies.add(inimigo3);
+                }
+
+                // Criar inimigo4 galagaRegular04 nas células 51 a 55
+                if (cellNumber >= 51 && cellNumber <= 55) {
+                    const inimigo4 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular04');
+                    inimigo4.customKey = "inimigo4" + cellNumber
+                    inimigo4.setScale(2.5);
+                    inimigo4.setDepth(4);
+                    inimigo4.body.allowGravity = false;
+                    inimigo4.hitValue = 550;
+                    
+                    this.enemies.add(inimigo4);
+                }
+
+                // Criar inimigo5 galagaRegular05 nas células 68 a 71
+                if (cellNumber >= 68 && cellNumber <= 71) {
+                    const inimigo5 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular05');
+                    inimigo5.customKey = "inimigo5" + cellNumber
+                    inimigo5.setScale(2.5);
+                    inimigo5.setDepth(4);
+                    inimigo5.body.allowGravity = false;
+                    inimigo5.hitValue = 250;
+                    
+                    this.enemies.add(inimigo5);
+                }
+
+                // Criar inimigo6 galagaRegular06 nas células 74 a 77
+                if (cellNumber >= 74 && cellNumber <= 77) {
+                    const inimigo6 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular06');
+                    inimigo6.customKey = "inimigo6" + cellNumber
+                    inimigo6.setScale(2.5);
+                    inimigo6.setDepth(4);
+                    inimigo6.body.allowGravity = false;
+                    inimigo6.hitValue = 250;
+                    
+                    this.enemies.add(inimigo6);
+                }
+
+                // Criar boss1  GalagaBoss01 nas células 17 a 23
+                if (cellNumber >= 17 && cellNumber <= 23) {
+                    const boss1 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaBoss01');
+                    boss1.customKey = "boss1" + cellNumber
+                    boss1.setScale(2.5);
+                    boss1.setDepth(4);
+                    boss1.body.allowGravity = false;
+                    boss1.hitValue = 2500;
+                    
+                    this.enemies.add(boss1);
+                }
+
+                // Criar boss2  GalagaBoss02 nas células 26 a 32
+                if (cellNumber >= 26 && cellNumber <= 32) {
+                    const boss2 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaBoss02');
+                    boss2.customKey = "boss2" + cellNumber
+                    boss2.setScale(2.5);
+                    boss2.setDepth(4);
+                    boss2.body.allowGravity = false;
+                    boss2.hitValue = 2500;
+                    
+                    this.enemies.add(boss2);
+                }
+
+                // Criar boss3  GalagaBoss03 nas células 24 e 56
+                if (cellNumber == 24 || cellNumber == 56 ) {
+                    const boss3 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaBoss03');
+                    boss3.customKey = "boss3" + cellNumber
+                    boss3.setScale(2.5);
+                    boss3.setDepth(4);
+                    boss3.body.allowGravity = false;
+                    boss3.hitValue = 1000;
+                    
+                    this.enemies.add(boss3);
+                }
+
+                // Criar fast1  GalagaFast01 nas células 41 a 73
+                if (cellNumber == 41 || cellNumber == 73 ) {
+                    const fast1 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaFast01');
+                    fast1.customKey = "fast1" + cellNumber
+                    fast1.setScale(2.5);
+                    fast1.setDepth(4);
+                    fast1.body.allowGravity = false;
+                    fast1.hitValue = 5000;
+                    
+                    this.enemies.add(fast1);
+                }  
             }
 
-            // Criar inimigo2 galagaRegular02 nas células 42 a 47
-            if (cellNumber >= 42 && cellNumber <= 47) {
-                const inimigo2 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular02');
-                inimigo2.customKey = "inimigo2" + cellNumber
-                inimigo2.setScale(2.5);
-                inimigo2.setDepth(4);
-                inimigo2.body.allowGravity = false;
-                inimigo2.hitValue = 1750;
-
-                this.enemies.add(inimigo2);
-            }
-
-            // Criar inimigo3 galagaRegular03 nas células 58 a 62
-            if (cellNumber >= 58 && cellNumber <= 62) {
-                const inimigo3 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular03');
-                inimigo3.customKey = "inimigo3" + cellNumber
-                inimigo3.setScale(2.5);
-                inimigo3.setDepth(4);
-                inimigo3.body.allowGravity = false;
-                inimigo3.hitValue = 550;
-                
-                this.enemies.add(inimigo3);
-            }
-
-            // Criar inimigo4 galagaRegular04 nas células 51 a 55
-            if (cellNumber >= 51 && cellNumber <= 55) {
-                const inimigo4 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular04');
-                inimigo4.customKey = "inimigo4" + cellNumber
-                inimigo4.setScale(2.5);
-                inimigo4.setDepth(4);
-                inimigo4.body.allowGravity = false;
-                inimigo4.hitValue = 550;
-                
-                this.enemies.add(inimigo4);
-            }
-
-            // Criar inimigo5 galagaRegular05 nas células 68 a 71
-            if (cellNumber >= 68 && cellNumber <= 71) {
-                const inimigo5 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular05');
-                inimigo5.customKey = "inimigo5" + cellNumber
-                inimigo5.setScale(2.5);
-                inimigo5.setDepth(4);
-                inimigo5.body.allowGravity = false;
-                inimigo5.hitValue = 250;
-                
-                this.enemies.add(inimigo5);
-            }
-
-            // Criar inimigo6 galagaRegular06 nas células 74 a 77
-            if (cellNumber >= 74 && cellNumber <= 77) {
-                const inimigo6 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaRegular06');
-                inimigo6.customKey = "inimigo6" + cellNumber
-                inimigo6.setScale(2.5);
-                inimigo6.setDepth(4);
-                inimigo6.body.allowGravity = false;
-                inimigo6.hitValue = 250;
-                
-                this.enemies.add(inimigo6);
-            }
-
-            // Criar boss1  GalagaBoss01 nas células 17 a 23
-            if (cellNumber >= 17 && cellNumber <= 23) {
-                const boss1 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaBoss01');
-                boss1.customKey = "boss1" + cellNumber
-                boss1.setScale(2.5);
-                boss1.setDepth(4);
-                boss1.body.allowGravity = false;
-                boss1.hitValue = 2500;
-                
-                this.enemies.add(boss1);
-            }
-
-            // Criar boss2  GalagaBoss02 nas células 26 a 32
-            if (cellNumber >= 26 && cellNumber <= 32) {
-                const boss2 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaBoss02');
-                boss2.customKey = "boss2" + cellNumber
-                boss2.setScale(2.5);
-                boss2.setDepth(4);
-                boss2.body.allowGravity = false;
-                boss2.hitValue = 2500;
-                
-                this.enemies.add(boss2);
-            }
-
-            // Criar boss3  GalagaBoss03 nas células 24 e 56
-            if (cellNumber == 24 || cellNumber == 56 ) {
-                const boss3 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaBoss03');
-                boss3.customKey = "boss3" + cellNumber
-                boss3.setScale(2.5);
-                boss3.setDepth(4);
-                boss3.body.allowGravity = false;
-                boss3.hitValue = 1000;
-                
-                this.enemies.add(boss3);
-            }
-
-            // Criar fast1  GalagaFast01 nas células 41 a 73
-            if (cellNumber == 41 || cellNumber == 73 ) {
-                const fast1 = this.physics.add.sprite(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, 'galagaFast01');
-                fast1.customKey = "fast1" + cellNumber
-                fast1.setScale(2.5);
-                fast1.setDepth(4);
-                fast1.body.allowGravity = false;
-                fast1.hitValue = 5000;
-                
-                this.enemies.add(fast1);
-            }
 
             cellNumber++;
         }
@@ -498,6 +508,8 @@ function update() {
             const explosao = this.add.sprite(inimigo.x, inimigo.y, 'enemyExplosion');
             explosao.setDepth(5); // Definir a profundidade acima do inimigo
             explosao.play('enemyExplode'); // Iniciar a animação
+
+            self.somExplosaoInimigo.play();
 
             // Destruir o inimigo após um pequeno delay para permitir que a animação seja visível
             this.time.delayedCall(100, () => { // Ajustar o delay conforme necessário
