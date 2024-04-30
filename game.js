@@ -64,6 +64,14 @@ function preload() {
     this.load.image('galagaBoss03', 'assets/images/GalagaBoss03.png');
 
     this.load.image('galagaFast01', 'assets/images/GalagaFast01.png');
+
+    this.load.spritesheet('enemyExplosion', 'assets/images/enemyExplosion.png', {
+        frameWidth: 97/3,
+        frameHeight: 22,
+        endFrame: 4
+    });
+
+
 }
 
 function arabicToRoman(num) {
@@ -376,6 +384,14 @@ function create() {
         }
     }
 
+    // Animação da explosao do inimigo
+    this.anims.create({
+        key: 'enemyExplode',
+        frames: this.anims.generateFrameNumbers('enemyExplosion', { start: 0, end: 3 }),
+        frameRate: 16, // Ajustar a velocidade da animação
+        repeat: 1 // Repetir a animação infinitamente
+    });
+
 }
 
 function atirar(player) {
@@ -478,15 +494,27 @@ function update() {
         
         // Verificar se o inimigo possui a propriedade customKey e destruí-lo com base nessa referência
         if (inimigo.customKey) {
-            // Destruir o inimigo
-            inimigo.destroy();
-    
-            // Atualizar a pontuação
-            this.score += inimigo.hitValue;
-            this.scoreText.setText(`Score: ${this.score}`);
-    
-            // Verificar bônus de vida após a atualização da pontuação
-            verificarBonusVida(this);
+            // Criar a explosão na posição do inimigo
+            const explosao = this.add.sprite(inimigo.x, inimigo.y, 'enemyExplosion');
+            explosao.setDepth(5); // Definir a profundidade acima do inimigo
+            explosao.play('enemyExplode'); // Iniciar a animação
+
+            // Destruir o inimigo após um pequeno delay para permitir que a animação seja visível
+            this.time.delayedCall(100, () => { // Ajustar o delay conforme necessário
+                inimigo.destroy();
+
+                // Atualizar a pontuação
+                this.score += inimigo.hitValue;
+                this.scoreText.setText(`Score: ${this.score}`);
+
+                // Verificar bônus de vida após a atualização da pontuação
+                verificarBonusVida(this);
+
+                // Destruir a explosão após a animação terminar
+                explosao.on('animationcomplete', () => {
+                    explosao.destroy();
+                });
+            });
         }
     }, null, this);
     
