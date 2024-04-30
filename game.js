@@ -24,7 +24,6 @@ const spacing = -45; // Defina o valor adequado para o espaçamento entre as fla
 const flagX = 900; // Defina o valor adequado para a posição horizontal das flags
 const flagY = 745; // Defina o valor adequado para a posição vertical das flags
 
-
 const flagMap = {
     'I': 'flagLevelMultiple1',
     'V': 'flagLevelMultiple5',
@@ -65,10 +64,6 @@ function preload() {
     this.load.image('galagaBoss03', 'assets/images/GalagaBoss03.png');
 
     this.load.image('galagaFast01', 'assets/images/GalagaFast01.png');
-
-
-    //GalagaFast01
-
 }
 
 function arabicToRoman(num) {
