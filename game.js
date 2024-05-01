@@ -116,8 +116,6 @@ function getFlagImages(romanNumeral) {
     return flagImages;
 }
 
-
-
 function create() {
     this.physics.world.setBoundsCollision(true, true, true, true);
     
@@ -459,6 +457,8 @@ function avancarParaProximoNivel(gameState, cena) {
         console.log("startLevel: " + startLevel);
         console.log("endLevel: " + endLevel);
 
+        console.log("flagImage: " + this.flagImage);
+
         // Converter o novo número de nível para algarismos romanos
         const newLevelRoman = arabicToRoman(startLevel);
 
@@ -480,8 +480,12 @@ function avancarParaProximoNivel(gameState, cena) {
             flagImage.setScale(2.2);
             flagImage.visible = true;
         }
+
+        // Destruir o objeto flagImage
+        // this.flagImage.destroy();
     }
 }
+
 
 function update() {
     if (this.player.cursors.left.isDown) {
@@ -533,17 +537,36 @@ function update() {
     // Variável para controlar o estado de pausa
     let isPaused = false;
 
+    // Variável para armazenar o estado do jogador
+    let playerState;
+
     // Verificar se a tecla 'Q' foi pressionada
     if (this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q).isDown) {
         if (!isPaused) {
             // Pausar o jogo
             console.log('O jogo foi pausado.');
             this.physics.pause();
+            
+            // Armazenar o estado do jogador
+            playerState = {
+                x: this.player.x,
+                y: this.player.y,
+                velocityX: this.player.body.velocity.x,
+                velocityY: this.player.body.velocity.y
+            };
+            
             isPaused = true;
         } else {
             // Retomar o jogo
             console.log('O jogo foi retomado.');
             this.physics.resume();
+            
+            // Restaurar o estado do jogador
+            this.player.x = playerState.x;
+            this.player.y = playerState.y;
+            this.player.body.velocity.x = playerState.velocityX;
+            this.player.body.velocity.y = playerState.velocityY;
+            
             isPaused = false;
         }
     }
