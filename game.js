@@ -18,7 +18,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let startLevel = 1;
+let startLevel = 99;
 let endLevel = 256;
 const spacing = -45; // Defina o valor adequado para o espaçamento entre as flags
 const flagX = 900; // Defina o valor adequado para a posição horizontal das flags
@@ -35,6 +35,14 @@ const flagMap = {
     'D': 'flagLevelMultiple500', // Exemplo
     'M': 'flagLevelMultiple1000' // Exemplo
 };
+
+// Definir uma variável global para contar o número de inimigos vivos
+let numEnemiesAlive = 0;
+
+// Definir o número máximo de tiros permitidos na tela
+const maxTirosNaTela = 25;
+
+let numTirosDisparados = 0;
 
 function preload() {
     // Carregar imagens, sons, etc.
@@ -72,12 +80,10 @@ function preload() {
         frameHeight: 22,
         endFrame: 4
     });
-
-
 }
 
 function arabicToRoman(num) {
-    console.log("num : " + num );
+    //console.log("num : " + num );
 
     const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
     const numerals = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
@@ -110,6 +116,8 @@ function getFlagImages(romanNumeral) {
     return flagImages;
 }
 
+
+
 function create() {
     this.physics.world.setBoundsCollision(true, true, true, true);
     
@@ -141,8 +149,6 @@ function create() {
 
     // Criar o objeto de som da explosao do inimigo
     this.somExplosaoInimigo = this.sound.add('somExplosaoInimigo');
-
-    const self = this; // Armazenar o contexto atual
 
     // Criar grupo de estrelas com propriedades para animação
     this.estrelas = this.add.group({
@@ -256,7 +262,7 @@ function create() {
             cell.setOrigin(0, 0);
             cell.setDepth(3);
 
-            // Adicionar número da célula (opcional)
+            // Adicionarif (playerTiroPool) número da célula (opcional)
             const cellText = this.add.text(x * cellSize + cellSize / 2, y * cellSize + cellSize / 2, cellNumber, {
                 fontSize: '8px',
                 fill: '#ffffff'
@@ -264,8 +270,6 @@ function create() {
 
             cellText.setOrigin(0.5, 0.5);
             cellText.setDepth(3);
-
-
 
             if (cellNumber >= 17 && cellNumber <= 80) {
                             // Criar inimigo galagaRegular01 nas células 34 a 39
@@ -393,30 +397,22 @@ function create() {
             cellNumber++;
         }
     }
+    
+    // Iterar sobre os inimigos e atualizar a contagem de inimigos vivos
+    this.enemies.children.iterate(function(enemy) {
+        numEnemiesAlive++;
+    });
+
+    console.log("num: " + numEnemiesAlive );
 
     // Animação da explosao do inimigo
     this.anims.create({
         key: 'enemyExplode',
-        frames: this.anims.generateFrameNumbers('enemyExplosion', { start: 0, end: 3 }),
+        frames: this.anims.generateFrameNumbers('enemyExplosion', { start: 0, end: 2 }),
         frameRate: 16, // Ajustar a velocidade da animação
-        repeat: 1 // Repetir a animação infinitamente
+        repeat: 0 // Repetir a animação infinitamente
     });
 
-}
-
-function atirar(player) {
-    if (player.podeAtirar) {
-        player.podeAtirar = false;
-
-        const playerTiro = player.tiros.create(player.x, player.y - (32 * 1) + 4, 'playerShot');
-        playerTiro.setScale(2.8);
-        fast1.setDepth(6);
-        playerTiro.setVelocityY(-500);
-        playerTiro.body.allowGravity = false;
-
-        // Reproduzir o som do tiro usando o contexto da cena
-        self.somTiro.play(); 
-    }
 }
 
 function verificarBonusVida(cena) {
@@ -441,6 +437,52 @@ function verificarBonusVida(cena) {
     }
 }
 
+function avancarParaProximoNivel(gameState, cena) {
+    // Incrementar o valor do nível
+    startLevel++;
+
+    console.log("Estado atual do jogo:");
+    Object.keys(gameState).forEach(key => {
+        console.log(`${key}: ${gameState[key]}`);
+    });
+
+    // Aqui você pode acessar as informações do gameState, como gameState.level, gameState.score, gameState.playerLives, etc.
+    if (gameState.playerLives >= 1) {
+        // Verificar se o novo nível excede o valor máximo
+        if (startLevel > endLevel) {
+            // Se sim, ajustar o valor máximo do nível
+            endLevel = startLevel;
+        }
+
+        console.log("gPL: " + gameState.playerLives);
+        console.log("gLe: " + gameState.level);
+        console.log("startLevel: " + startLevel);
+        console.log("endLevel: " + endLevel);
+
+        // Converter o novo número de nível para algarismos romanos
+        const newLevelRoman = arabicToRoman(startLevel);
+
+        // Exibir o novo número de nível no jogo
+        console.log(`Avançando para o próximo nível: ${newLevelRoman}`);
+
+        // Atualizar as imagens das bandeiras para o novo número de nível
+        const newFlagImageNames = getFlagImages(newLevelRoman);
+
+        // Calcular o deslocamento para centralizar as novas bandeiras
+        const totalFlagWidth = newFlagImageNames.length * spacing;
+        const startX = flagX - (totalFlagWidth / 2) + (spacing / 2);
+
+        // Criar e exibir as novas bandeiras
+        for (let i = 0; i < newFlagImageNames.length; i++) {
+            const flagImage = cena.add.image(startX + (i * spacing), flagY, newFlagImageNames[i]);
+            flagImage.setOrigin(0.5);
+            flagImage.setDepth(5); 
+            flagImage.setScale(2.2);
+            flagImage.visible = true;
+        }
+    }
+}
+
 function update() {
     if (this.player.cursors.left.isDown) {
         this.player.setVelocityX(-250);
@@ -451,24 +493,13 @@ function update() {
     }
 
     // Armazenar o contexto atual
-    const self = this;
+    const self = this; 
 
-    function atirar(player) {
-        if (player.podeAtirar) {
-            player.podeAtirar = false;
-
-            const playerTiro = player.tiros.create(player.x, player.y - (32 * 1) + 4, 'playerShot');
-            playerTiro.setScale(2.8);
-            playerTiro.setVelocityY(-500);
-            playerTiro.body.allowGravity = false;
-
-            // Reproduzir o som do tiro usando o contexto da cena
-            self.somTiro.play(); 
-        }
-    }
-
+    // Adicionar uma verificação para permitir o disparo apenas quando pelo menos 40% dos tiros já foram destruídos
     if (this.player.spacebar.isDown && this.player.podeAtirar) {
+
         atirar(this.player);
+
     }
 
     // Habilita o disparo novamente quando a tecla é solta
@@ -489,7 +520,7 @@ function update() {
         this.levelText.destroy();
     }    
 
-        // hacks
+    // hacks para debug do jogo
     // Verificar se a tecla P foi pressionada
     if (this.keyP.isDown) {
         this.score += 1000;
@@ -498,6 +529,26 @@ function update() {
         // Verificar bônus de vida após atualizar o score
         verificarBonusVida(this); // Passar o contexto da cena (this) como argumento
     }
+
+    // Variável para controlar o estado de pausa
+    let isPaused = false;
+
+    // Verificar se a tecla 'Q' foi pressionada
+    if (this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q).isDown) {
+        if (!isPaused) {
+            // Pausar o jogo
+            console.log('O jogo foi pausado.');
+            this.physics.pause();
+            isPaused = true;
+        } else {
+            // Retomar o jogo
+            console.log('O jogo foi retomado.');
+            this.physics.resume();
+            isPaused = false;
+        }
+    }
+
+
 
     this.physics.add.overlap(this.player.tiros, this.enemies, (tiro, inimigo) => {
         tiro.destroy(); // Destruir o tiro
@@ -515,6 +566,23 @@ function update() {
             this.time.delayedCall(100, () => { // Ajustar o delay conforme necessário
                 inimigo.destroy();
 
+                // Atualizar a contagem de inimigos vivos
+                numEnemiesAlive--;
+
+                //console.log("num2: " + numEnemiesAlive );
+
+                // Verificar se todos os inimigos foram destruídos
+                if (numEnemiesAlive === 0) {
+                   // this.flagImage.destroy();
+                    // Todos os inimigos foram destruídos, avançar para o próximo nível ou realizar outra ação
+                    avancarParaProximoNivel({
+                        level: startLevel,
+                        score: this.score,
+                        playerLives: this.player.vidas
+                        // Outras informações do estado do jogo, se necessário
+                    }, this)
+                }
+
                 // Atualizar a pontuação
                 this.score += inimigo.hitValue;
                 this.scoreText.setText(`Score: ${this.score}`);
@@ -522,13 +590,26 @@ function update() {
                 // Verificar bônus de vida após a atualização da pontuação
                 verificarBonusVida(this);
 
-                // Destruir a explosão após a animação terminar
-                explosao.on('animationcomplete', () => {
+                // Destruir a explosão após um período de tempo
+                this.time.delayedCall(100, () => { // Tempo em milissegundos (1000 ms = 1 segundo)
                     explosao.destroy();
                 });
             });
         }
     }, null, this);
     
-
+    function atirar(player) {        
+        if (player.podeAtirar) {
+            player.podeAtirar = false;
+    
+            // Reproduzir o som do tiro
+            self.somTiro.play();
+    
+            const playerTiro = player.tiros.create(player.x, player.y - (32 * 1) + 4, 'playerShot');
+            playerTiro.setScale(2.8);
+            playerTiro.setVelocityY(-500);
+            playerTiro.body.allowGravity = false;
+        }
+    }
+    
 }
