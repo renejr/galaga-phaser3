@@ -18,7 +18,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-let startLevel = 99;
+let startLevel = 1;
 let endLevel = 256;
 const spacing = -45; // Defina o valor adequado para o espaçamento entre as flags
 const flagX = 900; // Defina o valor adequado para a posição horizontal das flags
@@ -182,6 +182,7 @@ function create() {
     });
     this.levelText.setOrigin(0.5);
 
+    this.atu = 0;
     primeiroNivel(this);
 
     // Controle da nave com teclado
@@ -508,8 +509,6 @@ function update() {
         }
     }
 
-
-
     this.physics.add.overlap(this.player.tiros, this.enemies, (tiro, inimigo) => {
         tiro.destroy(); // Destruir o tiro
         
@@ -532,14 +531,38 @@ function update() {
                 //console.log("num2: " + numEnemiesAlive );
 
                 // Verificar se todos os inimigos foram destruídos
-                if (numEnemiesAlive === 47) {
+                if (numEnemiesAlive <= 47) {
                     // Todos os inimigos foram destruídos, avançar para o próximo nível ou realizar outra ação
-                    avancarParaProximoNivel({
+                    /* avancarParaProximoNivel({
                         level: startLevel,
                         score: this.score,
                         playerLives: this.player.vidas
                         // Outras informações do estado do jogo, se necessário
-                    }, this, flagImages)
+                    }, this, flagImages); */
+                    startLevel++;
+                    this.atu = 1;
+                    
+                    // Converter nível para romano e exibir
+                    levelRoman = arabicToRoman(startLevel);
+
+                    this.levelText = this.add.text(512, 384, `Nível ${levelRoman}`, {
+                        fontSize: '32px', 
+                        fill: '#fff',
+                        fontFamily: 'Arial'
+                    });
+                    this.levelText.setOrigin(0.5);
+        
+                    // Iniciar o efeito de piscar
+                    this.tweens.add({
+                        targets: this.levelText,
+                        alpha: { from: 0, to: 1 },
+                        duration: 500,
+                        ease: 'Linear',
+                        repeat: -1, // Repetir infinitamente
+                        yoyo: true  // Inverter a animação
+                    });
+                    
+                    primeiroNivel(this);
                 }
 
                 // Atualizar a pontuação
@@ -570,72 +593,84 @@ function update() {
             playerTiro.body.allowGravity = false;
         }
     }
+
+    function avancarParaProximoNivel(gameState, cena, flagImagesOld) {
+        // Incrementar o valor do nível
+        startLevel++;
+        
+        // Aqui você pode acessar as informações do gameState, como gameState.level, gameState.score, gameState.playerLives, etc.
+        console.log(startLevel);
+        console.log(flagImagesOld);
     
-}
-
-function avancarParaProximoNivel(gameState, cena, flagImages) {
-    // Incrementar o valor do nível
-    startLevel++;
-    // Aqui você pode acessar as informações do gameState, como gameState.level, gameState.score, gameState.playerLives, etc.
-    console.log(startLevel);
-    console.log(flagImages);
-
-    // Converter o novo número de nível para algarismos romanos
-    const newLevelRoman = arabicToRoman(startLevel);
-
-    console.log(newLevelRoman);
-    // Converter nível para romano e exibir
-    const levelRoman = newLevelRoman;
+        // Converter o novo número de nível para algarismos romanos
+        const newLevelRoman = arabicToRoman(startLevel);
     
-    cena.levelText = cena.add.text(512, 384, `Nível ${levelRoman}`, {
-        fontSize: '32px', 
-        fill: '#fff',
-        fontFamily: 'Arial'
-    });
-    cena.levelText.setOrigin(0.5);
-
-    // Iniciar o efeito de piscar
-    cena.tweens.add({
-        targets: cena.levelText,
-        alpha: { from: 0, to: 1 },
-        duration: 500,
-        ease: 'Linear',
-        repeat: -1, // Repetir infinitamente
-        yoyo: true  // Inverter a animação
-    });
+        console.log(newLevelRoman);
+        // Converter nível para romano e exibir
+        const levelRoman = newLevelRoman;
+        
+        cena.levelText = cena.add.text(512, 384, `Nível ${levelRoman}`, {
+            fontSize: '32px', 
+            fill: '#fff',
+            fontFamily: 'Arial'
+        });
+        cena.levelText.setOrigin(0.5);
     
-    // Exibir o novo número de nível no jogo
-    console.log(`Avançando para o próximo nível: ${newLevelRoman}`);
+        // Iniciar o efeito de piscar
+        cena.tweens.add({
+            targets: cena.levelText,
+            alpha: { from: 0, to: 1 },
+            duration: 500,
+            ease: 'Linear',
+            repeat: -1, // Repetir infinitamente
+            yoyo: true  // Inverter a animação
+        });
+        
+        // Exibir o novo número de nível no jogo
+        console.log(`Avançando para o próximo nível: ${newLevelRoman}`);
 
-    console.log(flagImages.length);
+        // for (let i = 0; i < flagImages.length; i++) {
+        //     // Calcular o deslocamento para centralizar as novas bandeiras
+        //     const totalFlagWidth = flagImages[i].length * spacing;
+        //     const startX = flagX - (totalFlagWidth / 2) + (spacing / 2);
 
-    // Definir o depth desejado para as imagens das bandeiras
-    const flagDepth = -1000;
+        //     const flagImage = cena.add.image(startX + (i * spacing), flagY, flagImages[i]);
 
-    // Atualizar o depth das imagens das bandeiras
-    for (let i = 0; i < flagImages.length; i++) {
-        const flagImage = flagImages[i];
+        //     console.log('flagImage_' + i + ': ' + flagImage);
+        //     console.log('flagImageLength_' + i + ': ' + flagImage.length);
 
-        console.log(flagImages[i]);
-        console.log(flagImage);
+        //     // Destruir a imagem renderizada pela key da imagem
+        //     flagImage.destroy();
+        // }
+
+        
     }
+    
 }
-
 
 function primeiroNivel(cena) {
+        atu = cena.atu;
+
         // Verificar se o novo nível excede o valor máximo
         if (startLevel > endLevel) {
             // Se sim, ajustar o valor máximo do nível
             endLevel = startLevel;
         }
 
-        //console.log("startLevel: " + startLevel);
-        //console.log("endLevel: " + endLevel);
-
         // Converter nível para romano e exibir
-        const levelRoman = arabicToRoman(startLevel);
-        
-        //console.log(levelRoman);
+        levelRoman = arabicToRoman(startLevel);
+
+        if(atu > 0){
+            console.log('atu22: ' + atu);
+
+            // Converter nível para romano e exibir
+            cena.levelRomanOld = arabicToRoman(startLevel-1);
+            cena.flagImagesOld = getFlagImages(cena.levelRomanOld);
+
+            for (let i = 0; i < cena.flagImagesOld.length/2; i++) {
+                cena.flagImageOld = cena.flagImagesOld[i];
+            }
+        }
 
         // Limpar o array flagImages
         flagImages = [];
@@ -651,11 +686,14 @@ function primeiroNivel(cena) {
         // Criar e exibir as novas bandeiras
         for (let i = 0; i < flagImages.length; i++) {
             const flagImage = cena.add.image(startX + (i * spacing), flagY, flagImages[i]);
+            const depth = 5 + startLevel;
+            console.log('depth: ' + depth);
+
             flagImage.setOrigin(0.5);
             flagImage.setDepth(5); 
             flagImage.setScale(2.2);
             flagImage.visible = true;
+  
         }
-
 
 }
